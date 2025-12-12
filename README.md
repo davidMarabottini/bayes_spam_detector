@@ -1,4 +1,4 @@
-# sms_spam — progetto
+# Bayes spam detector — progetto
 
 Breve descrizione
 - API Flask per classificazione spam su SMS e mail.
