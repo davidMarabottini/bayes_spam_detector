@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 def register_routes(app):
 
-    @app.route('/predict/<model_type>', methods=['GET'])
+    @app.route('/predict/<model_type>', methods=['POST'])
     def predict_dynamic(model_type):
         # legge 'text' da query string/form prima, poi da JSON body se necessario
         raw_text = request.values.get('text')  # handles query string and form data
