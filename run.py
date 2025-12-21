@@ -6,12 +6,13 @@ from flask_cors import CORS
 app = create_app()
 
 CORS(app, resources={
-        r"/predict/*": {
-            "origins": ["http://localhost:5173"],
-            "methods": ["GET", "POST", "OPTIONS"],
-            "allow_headers": ["Content-Type", "X-Origin-Site"]
-        }
-    })
+    r"/*": {
+        "origins": ["http://localhost:5173"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "X-Origin-Site"],
+        "supports_credentials": True
+    }
+})
 
 def configure_logging():
     level = os.getenv("LOG_LEVEL", "INFO").upper()

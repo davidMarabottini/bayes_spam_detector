@@ -1,16 +1,12 @@
 from functools import wraps
-from flask import request, abort
-from .jwt_validator import verify_token
+from flask import request, jsonify
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.headers.get("Authorization")
-        if not auth or not auth.startswith("Bearer "):
-            abort(401, "Authorization header mancante")
-
-        token = auth.split(" ")[1]
-        request.user = verify_token(token)
-
+        token = request.cookies.get('authToken')
+        
+        if not token:
+            return jsonify({"error": "Sessione mancante o scaduta"}), 401
         return f(*args, **kwargs)
     return decorated

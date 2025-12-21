@@ -1,15 +1,45 @@
-from flask import request, jsonify
+from flask import request, jsonify, make_response
+from .auth.decorators import requires_auth
 import logging
 from .exception import APIError
 
 logger = logging.getLogger(__name__)
 
 def register_routes(app):
+    @app.route('/login', methods=['POST'])
+    def login():
+        user_data = {"user": "user-mock", "role": "admin"}
+        token = "mock-jwt-token" 
+
+        response = make_response(jsonify({"status": "success", "user": user_data}))
+        
+        response.set_cookie(
+            'authToken',
+            token,
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+            max_age=3600
+        )
+        return response
+
+    @app.route('/api/me', methods=['GET'])
+    @requires_auth
+    def me():
+        token = request.cookies.get('authToken')
+        
+        return jsonify({"user": {"user": "user-mock", "role": "admin"}})
+
+    @app.route('/logout', methods=['POST'])
+    def logout():
+        response = make_response(jsonify({"status": "success"}))
+        response.set_cookie('authToken', '', expires=0)
+        return response
 
     @app.route('/predict/<model_type>', methods=['POST'])
+    @requires_auth
     def predict_dynamic(model_type):
-        # legge 'text' da query string/form prima, poi da JSON body se necessario
-        raw_text = request.values.get('text')  # handles query string and form data
+        raw_text = request.values.get('text')
         if raw_text is None:
             json_body = request.get_json(silent=True) or {}
             raw_text = json_body.get('text')
