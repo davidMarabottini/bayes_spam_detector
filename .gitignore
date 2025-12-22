@@ -20,7 +20,7 @@ data/
 datasets/
 
 # Model artifacts (binary artifacts should not be committed)
-models/**/*.joblib
+# models/**/*.joblib
 models/**/*.pkl
 models/**/*.onnx
 models/**/*.bin
