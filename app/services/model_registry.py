@@ -14,13 +14,12 @@ class ModelRegistry:
     """
     def __init__(self, root_dir: str):
         self.root_dir = Path(root_dir)
-        self._models = {}        # model_type -> service instance or None
-        self._model_paths = {}   # model_type -> (service_class, path)
+        self._models = {}
+        self._model_paths = {}
         self._lock = threading.Lock()
         self._discover_models()
 
     def _discover_models(self):
-        # mapping minimale: aggiungi nuovi modelli qui
         sms_model = self.root_dir.joinpath('..', 'models', 'sms_spam_pipeline.joblib').resolve()
         mail_model = self.root_dir.joinpath('..', 'models', 'mail_spam_pipeline.joblib').resolve()
 
