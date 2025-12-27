@@ -63,6 +63,6 @@ build/
 .cache/
 
 # Database fisico e istanza locale
-instance/
+# instance/
 *.db
 *.sqlite3
