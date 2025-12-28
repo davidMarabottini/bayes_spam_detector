@@ -4,13 +4,38 @@ Breve descrizione
 - API Flask per classificazione spam su SMS e mail.
 - Modelli salvati in `models/`; logica in `app/`.
 
-Quickstart (dev)
-1. Crea ambiente virtuale e installa dipendenze:
-   - `python -m venv .venv && .venv\\Scripts\\activate`
-   - `pip install -r requirements.txt`
-2. Avvia: `python run.py`
-3. Testa endpoint:
-   - `curl "http://127.0.0.1:5000/predict/sms?text=hello"`
+## Quickstart (dev)
+### 1. Crea ambiente virtuale e installa dipendenze:
+```
+python -m venv venv
+.\venv\Scripts\activate
+source venv/bin/activate
+```
+
+### 2. Installazione Dipendenze
+```
+pip install -r requirements.txt
+```
+
+### 3. Configurazione Ambiente (Fondamentale)
+Creare il file .env nella root di progetto con le seguenti variabili
+```
+FLASK_APP=run.py
+FLASK_ENV=development
+FLASK_DEBUG=1
+DATABASE_URL=sqlite:///app.db
+```
+
+### 4. Database e Avvio
+```
+python -m flask db upgrade
+flask create-admin -> se si vuole creare utente admin
+```
+
+### 5. Avvio
+```
+flask run
+```
 
 Documenti utili
 - BACKEND.md — dettagli operativi del backend.
