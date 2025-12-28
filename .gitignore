@@ -61,3 +61,8 @@ build/
 
 # Misc caches
 .cache/
+
+# Database fisico e istanza locale
+# instance/
+*.db
+*.sqlite3

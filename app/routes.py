@@ -1,40 +1,85 @@
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, g
 from .auth.decorators import requires_auth
 import logging
 from .exception import APIError
+from .services.auth_service import AuthService
+from .services.user_service import UserService
 
 logger = logging.getLogger(__name__)
 
 def register_routes(app):
     @app.route('/login', methods=['POST'])
+    
     def login():
-        user_data = {"user": "user-mock", "role": "admin"}
-        token = "mock-jwt-token" 
-
-        response = make_response(jsonify({"status": "success", "user": user_data}))
+        data = request.get_json()
+        response, error = AuthService.login_user(data.get('username'), data.get('password'))
         
-        response.set_cookie(
-            'authToken',
-            token,
-            httponly=True,
-            secure=False,
-            samesite='Lax',
-            max_age=3600
-        )
+        if error:
+            return jsonify({"status": "error", "message": error}), 401
         return response
+
+    @app.route('/logout', methods=['POST'])
+    def logout():
+        return AuthService.logout_user()
 
     @app.route('/api/me', methods=['GET'])
     @requires_auth
     def me():
-        token = request.cookies.get('authToken')
-        
-        return jsonify({"user": {"user": "user-mock", "role": "admin"}})
+        user = g.current_user
+        return jsonify({
+        # "status": "success",
+        # "user": {
+            "user": user.username,
+            "role": [r.name for r in user.roles]
+        # }
+    })
 
-    @app.route('/logout', methods=['POST'])
-    def logout():
-        response = make_response(jsonify({"status": "success"}))
-        response.set_cookie('authToken', '', expires=0)
-        return response
+    @app.route('/api/users', methods=['GET'])
+    @requires_auth
+    def list_users():
+        users = UserService.get_all_users()
+        return jsonify([{
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "name": u.name,
+            "surname": u.surname,
+            "roles": [r.name for r in u.roles]
+        } for u in users])
+
+    @app.route('/api/users', methods=['POST'])
+    def add_user():
+        data = request.get_json()
+        data['roles'] = ['user'] 
+        user, error = UserService.create_user(data)
+        
+        if error:
+            return jsonify({"status": "error", "message": error}), 400
+        
+        return jsonify({"status": "success", "id": user.id, "message": "OK"}), 201
+
+    @app.route('/api/users/<int:user_id>', methods=['PUT'])
+    @requires_auth
+    def update_user(user_id):
+        data = request.get_json()
+        user, error = UserService.update_user(user_id, data)
+        if error:
+            return jsonify({"status": "error", "message": error}), 400
+        return jsonify({"status": "success", "message": "Utente aggiornato"})
+
+    @app.route('/api/users/<int:user_id>', methods=['DELETE'])
+    @requires_auth
+    def delete_user(user_id):
+        success = UserService.delete_user(user_id)
+        if not success:
+            return jsonify({"status": "error", "message": "Utente non trovato"}), 404
+        return jsonify({"status": "success", "message": "Utente eliminato"})
+
+    # @app.route('/logout', methods=['POST'])
+    # def logout():
+    #     response = make_response(jsonify({"status": "success"}))
+    #     response.set_cookie('authToken', '', expires=0)
+    #     return response
 
     @app.route('/predict/<model_type>', methods=['POST'])
     @requires_auth
