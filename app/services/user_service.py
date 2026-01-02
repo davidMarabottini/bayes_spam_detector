@@ -39,6 +39,11 @@ class UserService:
         return User.query.all()
 
     @staticmethod
+    def get_single_user(user_id):
+        """Ritorna i dati di un singolo utente"""
+        return db.session.get(User, user_id)
+    
+    @staticmethod
     def update_user(user_id, data):
         """Aggiorna solo i campi inviati (Partial Update)."""
         user = User.query.get(user_id)
