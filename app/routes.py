@@ -27,13 +27,23 @@ def register_routes(app):
     def me():
         user = g.current_user
         return jsonify({
-        # "status": "success",
-        # "user": {
+            "id": user.id,
             "user": user.username,
             "role": [r.name for r in user.roles]
-        # }
-    })
+        })
 
+    @app.route('/api/users/me', methods=['GET'])
+    @requires_auth
+    def get_me():
+        user = g.current_user
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "name": user.name,
+            "surname": user.surname,
+            "roles": [r.name for r in user.roles]
+        })
     @app.route('/api/users', methods=['GET'])
     @requires_auth
     def list_users():
@@ -58,6 +68,14 @@ def register_routes(app):
         
         return jsonify({"status": "success", "id": user.id, "message": "OK"}), 201
 
+    @app.route('/api/users/<int:user_id>', methods=['GET'])
+    @requires_auth
+    def get_single_user(user_id):
+        user, error = UserService.get_single_user(user_id)
+        if error:
+            return jsonify({"status": "error", "message": error}), 400
+        return jsonify(user)
+    
     @app.route('/api/users/<int:user_id>', methods=['PUT'])
     @requires_auth
     def update_user(user_id):
