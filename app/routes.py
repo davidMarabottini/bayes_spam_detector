@@ -40,10 +40,37 @@ def register_routes(app):
             "id": user.id,
             "username": user.username,
             "email": user.email,
+            "gender": user.gender,
             "name": user.name,
             "surname": user.surname,
             "roles": [r.name for r in user.roles]
         })
+    
+    @app.route('/api/users/me', methods=['PUT'])
+    @requires_auth
+    def update_me():
+        user = g.current_user
+        data = request.get_json()
+
+        updated_user, error = UserService.update_user(user.id, data)
+
+        if error:
+            return jsonify({"status": "error", "message": error}), 400
+
+        return jsonify({
+            "status": "success",
+            "user": {
+                "id": updated_user.id,
+                "username": updated_user.username,
+                "email": updated_user.email,
+                "gender": user.gender,
+                "name": updated_user.name,
+                "surname": updated_user.surname,
+                "roles": [r.name for r in updated_user.roles]
+            }
+        })
+
+        
     @app.route('/api/users', methods=['GET'])
     @requires_auth
     def list_users():
