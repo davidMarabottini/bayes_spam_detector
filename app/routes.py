@@ -103,7 +103,6 @@ def register_routes(app):
             return jsonify({"status": "error", "message": error}), 400
         return jsonify(user)
     
-
     @app.route('/api/users/<int:user_id>', methods=['PUT'])
     @requires_auth
     def update_user(user_id):
